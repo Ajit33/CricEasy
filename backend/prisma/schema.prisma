@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,9 +8,88 @@ datasource db {
 }
 
 model User {
+  id          Int          @id @default(autoincrement())
+  name        String
+  email       String       @unique
+  password    String
+  tournaments Tournament[] // One user can create many tournaments
+  createdAt   DateTime     @default(now())
+}
+
+model Tournament {
   id        Int      @id @default(autoincrement())
   name      String
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
+  date      DateTime
+  place     String
+  creatorId Int // Foreign key to User
+  creator   User     @relation(fields: [creatorId], references: [id])
+  teamSize  Int
+  teams     Team[] // One tournament can have many teams
+  matches   Match[] // One tournament can have many matches
 }
+
+model Team {
+  id           Int        @id @default(autoincrement())
+  name         String
+  tournamentId Int // Foreign key to Tournament
+  players      Player[] // One team can have many players
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  matches1     Match[]    @relation("MatchTeam1") // Matches where the team is Team1
+  matches2     Match[]    @relation("MatchTeam2") // Matches where the team is Team2
+}
+
+model Player {
+  id           Int          @id @default(autoincrement())
+  name         String
+  teamId       Int          // Foreign key to Team
+  team         Team         @relation(fields: [teamId], references: [id])
+  
+  // Relationships with MatchEvent
+  asStriker    MatchEvent[] @relation("Striker")      
+  asNonStriker MatchEvent[] @relation("NonStriker")   
+  asBowler     MatchEvent[] @relation("Bowler")      
+
+  createdAt    DateTime     @default(now())
+}
+
+model Match {
+  id           Int          @id @default(autoincrement())
+  date         DateTime
+  location     String
+  tournamentId Int // Foreign key to Tournament
+  tournament   Tournament   @relation(fields: [tournamentId], references: [id])
+  team1Id      Int // Foreign key to Team 1
+  team1        Team         @relation("MatchTeam1", fields: [team1Id], references: [id])
+  team2Id      Int // Foreign key to Team 2
+  team2        Team         @relation("MatchTeam2", fields: [team2Id], references: [id])
+  events       MatchEvent[] // Match events (runs, wickets, etc.)
+  result       String?      // Optional: Match result
+  createdAt    DateTime     @default(now())
+}
+
+model MatchEvent {
+  id          Int      @id @default(autoincrement())
+  matchId     Int      // Foreign key to Match
+  match       Match    @relation(fields: [matchId], references: [id]) // Relation to Match
+  over        Int      // Over number
+  ball        Int      // Ball number in the over
+  
+  // Relationships with players
+  strikerId   Int      
+  striker     Player   @relation("Striker", fields: [strikerId], references: [id]) 
+
+  nonStrikerId Int     // Foreign key to Player (non-striker)
+  nonStriker   Player   @relation("NonStriker", fields: [nonStrikerId], references: [id]) 
+
+  bowlerId    Int      // Foreign key to Player (bowler)
+  bowler      Player   @relation("Bowler", fields: [bowlerId], references: [id]) 
+  
+  runs        Int      
+  isBoundary  Boolean  
+  isWide      Boolean  
+  isWicket    Boolean  
+
+  createdAt   DateTime @default(now())
+}
+
+
