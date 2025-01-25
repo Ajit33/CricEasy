@@ -50,18 +50,18 @@ export const createTournament = async (req: Request, res: Response): Promise<voi
 };
 
 
- // Adjust import path as needed
+
 
 export const addTeams = async (req: Request, res: Response) => {
   try {
-    // Convert tournamentId to a number
+    
     const tournamentId = Number(req.params.tournamentId);
     console.log("this is the tournamnet Id",tournamentId)
     console.log("params",req.params.tournamentId)
-    // Extract the team's name from the request body
+ 
     const { name } = req.body;
 
-    // Validate inputs
+  
     if (!name) {
       throw new CustomError("Team name is required", 400);
     }
@@ -75,7 +75,7 @@ export const addTeams = async (req: Request, res: Response) => {
         id: tournamentId,
       },
       include: {
-        teams: true, // Include related teams if needed
+        teams: true, 
       },
     });
 
