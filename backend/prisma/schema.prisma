@@ -34,8 +34,7 @@ model Team {
   tournamentId Int // Foreign key to Tournament
   players      Player[] // One team can have many players
   tournament   Tournament @relation(fields: [tournamentId], references: [id])
-  matches1     Match[]    @relation("MatchTeam1") // Matches where the team is Team1
-  matches2     Match[]    @relation("MatchTeam2") // Matches where the team is Team2
+  
 }
 
 model Player {
@@ -59,9 +58,9 @@ model Match {
   tournamentId Int // Foreign key to Tournament
   tournament   Tournament   @relation(fields: [tournamentId], references: [id])
   team1Id      Int // Foreign key to Team 1
-  team1        Team         @relation("MatchTeam1", fields: [team1Id], references: [id])
+
   team2Id      Int // Foreign key to Team 2
-  team2        Team         @relation("MatchTeam2", fields: [team2Id], references: [id])
+ 
   events       MatchEvent[] // Match events (runs, wickets, etc.)
   result       String?      // Optional: Match result
   createdAt    DateTime     @default(now())
