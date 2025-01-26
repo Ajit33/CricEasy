@@ -1,6 +1,7 @@
 
 
 
+import Hero from './components/general/Hero'
 import NavBar from './components/general/NavBar'
 import { BrowserRouter  , Routes, Route } from 'react-router-dom'
 
@@ -11,6 +12,7 @@ function App() {
  
     <BrowserRouter>
     <NavBar />
+    <Hero />
     </BrowserRouter>
    
    
