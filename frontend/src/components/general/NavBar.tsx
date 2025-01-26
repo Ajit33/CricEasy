@@ -5,7 +5,7 @@ const NavBar = () => {
   return (
     <div className="w-full h-[60px]  flex items-center px-5 bg-black">
       {/* Logo Section */}
-      <div className="w-[600px] font-bold text-lg text-green-500">
+      <div className="w-[600px] font-bold text-3xl text-green-500">
         CricEasy
       </div>
 

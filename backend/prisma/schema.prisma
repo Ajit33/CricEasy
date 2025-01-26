@@ -21,33 +21,32 @@ model Tournament {
   name      String
   date      DateTime
   place     String
-  creatorId Int // Foreign key to User
+  status    String   @default("upcoming") // e.g., "upcoming", "ongoing", "completed"
+  creatorId Int
   creator   User     @relation(fields: [creatorId], references: [id])
   teamSize  Int
-  teams     Team[] // One tournament can have many teams
-  matches   Match[] // One tournament can have many matches
+  teams     Team[]   // One tournament can have many teams
+  matches   Match[]  // One tournament can have many matches
 }
 
 model Team {
   id           Int        @id @default(autoincrement())
-  name         String
-  tournamentId Int // Foreign key to Tournament
-  players      Player[] // One team can have many players
+  name         String     // Foreign key to Player (captain)
+  tournamentId Int
+  players      Player[]   // One team can have many players
   tournament   Tournament @relation(fields: [tournamentId], references: [id])
-  
 }
 
 model Player {
   id           Int          @id @default(autoincrement())
   name         String
-  teamId       Int          // Foreign key to Team
+  teamId       Int
   team         Team         @relation(fields: [teamId], references: [id])
-  
-  // Relationships with MatchEvent
-  asStriker    MatchEvent[] @relation("Striker")      
-  asNonStriker MatchEvent[] @relation("NonStriker")   
-  asBowler     MatchEvent[] @relation("Bowler")      
-
+  totalRuns    Int          @default(0)
+  totalWickets Int          @default(0)
+  asStriker    MatchEvent[] @relation("Striker")
+  asNonStriker MatchEvent[] @relation("NonStriker")
+  asBowler     MatchEvent[] @relation("Bowler")
   createdAt    DateTime     @default(now())
 }
 
@@ -55,40 +54,40 @@ model Match {
   id           Int          @id @default(autoincrement())
   date         DateTime
   location     String
-  tournamentId Int // Foreign key to Tournament
+  tournamentId Int
   tournament   Tournament   @relation(fields: [tournamentId], references: [id])
-  team1Id      Int // Foreign key to Team 1
-
-  team2Id      Int // Foreign key to Team 2
- 
-  events       MatchEvent[] // Match events (runs, wickets, etc.)
+  team1Id      Int          // Foreign key to Team 1
+  team2Id      Int          // Foreign key to Team 2
+  tossWinnerId Int?         // Foreign key to Team (toss winner)
+  decision     String?      // e.g., "bat", "bowl"
+  firstInningsRuns    Int?  // Runs scored in the first innings
+  firstInningsWickets Int?  // Wickets taken in the first innings
+  firstInningsOvers   Float? // Overs bowled in the first innings
+  secondInningsRuns   Int?  // Runs scored in the second innings
+  secondInningsWickets Int? // Wickets taken in the second innings
+  secondInningsOvers  Float? // Overs bowled in the second innings
   result       String?      // Optional: Match result
+  events       MatchEvent[] // Match events (runs, wickets, etc.)
   createdAt    DateTime     @default(now())
 }
 
 model MatchEvent {
   id          Int      @id @default(autoincrement())
-  matchId     Int      // Foreign key to Match
-  match       Match    @relation(fields: [matchId], references: [id]) // Relation to Match
+  matchId     Int
+  match       Match    @relation(fields: [matchId], references: [id])
+  innings     Int      // 1 for first innings, 2 for second innings
   over        Int      // Over number
   ball        Int      // Ball number in the over
-  
-  // Relationships with players
-  strikerId   Int      
-  striker     Player   @relation("Striker", fields: [strikerId], references: [id]) 
-
+  strikerId   Int      // Foreign key to Player (striker)
+  striker     Player   @relation("Striker", fields: [strikerId], references: [id])
   nonStrikerId Int     // Foreign key to Player (non-striker)
-  nonStriker   Player   @relation("NonStriker", fields: [nonStrikerId], references: [id]) 
-
+  nonStriker  Player   @relation("NonStriker", fields: [nonStrikerId], references: [id])
   bowlerId    Int      // Foreign key to Player (bowler)
-  bowler      Player   @relation("Bowler", fields: [bowlerId], references: [id]) 
-  
-  runs        Int      
-  isBoundary  Boolean  
-  isWide      Boolean  
-  isWicket    Boolean  
-
+  bowler      Player   @relation("Bowler", fields: [bowlerId], references: [id])
+  runs        Int      // Runs scored on this ball
+  ballType    String   @default("normal") // e.g., "normal", "wide", "no-ball", "byes", "leg-byes"
+  isBoundary  Boolean  // Whether the ball resulted in a boundary
+  isWide      Boolean  // Whether the ball was a wide
+  isWicket    Boolean  // Whether the ball resulted in a wicket
   createdAt   DateTime @default(now())
 }
-
-
