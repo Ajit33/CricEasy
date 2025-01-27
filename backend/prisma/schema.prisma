@@ -58,7 +58,7 @@ model Match {
   tournament   Tournament   @relation(fields: [tournamentId], references: [id])
   team1Id      Int          // Foreign key to Team 1
   team2Id      Int          // Foreign key to Team 2
-  tossWinnerId Int?         // Foreign key to Team (toss winner)
+  tossWinnerId Int         // Foreign key to Team (toss winner)
   decision     String?      // e.g., "bat", "bowl"
   firstInningsRuns    Int?  // Runs scored in the first innings
   firstInningsWickets Int?  // Wickets taken in the first innings
