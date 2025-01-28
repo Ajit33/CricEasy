@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import { CustomError } from "../utils/application.errors";
 import prisma from "../utils/Prisma";
+import Redis from "ioredis";
+
+
+const redis=new Redis()
 
 export const startMatch = async (req: Request, res: Response) => {
   try {
@@ -31,7 +35,8 @@ export const startMatch = async (req: Request, res: Response) => {
         id: team1Id,
       },
       include: {
-        tournament: true, // Include tournament to verify it belongs to the right tournament
+        tournament: true, 
+        players:true
       },
     });
 
@@ -41,6 +46,7 @@ export const startMatch = async (req: Request, res: Response) => {
       },
       include: {
         tournament: true,
+        players:true
       },
     });
 
@@ -70,7 +76,39 @@ export const startMatch = async (req: Request, res: Response) => {
         location, 
       },
     });
-
+    const initialMatchState = {
+        matchId: match.id,
+        tournamentId,
+        team1: {
+          id: team1.id,
+          name: team1.name,
+          players: team1.players.map((player) => ({
+            id: player.id,
+            name: player.name,
+            totalRuns: player.totalRuns,
+            totalWickets: player.totalWickets,
+          })),
+        },
+        team2: {
+          id: team2.id,
+          name: team2.name,
+          players: team2.players.map((player) => ({
+            id: player.id,
+            name: player.name,
+            totalRuns: player.totalRuns,
+            totalWickets: player.totalWickets,
+          })),
+        },
+        tossWinnerId,
+        decision,
+        location,
+        currentInnings: 1,
+        currentOver: 0,
+        currentBall: 0,
+        team1Score: { runs: 0, wickets: 0, overs: 0 },
+        team2Score: { runs: 0, wickets: 0, overs: 0 },
+      };
+      await redis.set(`match:${match.id}`, JSON.stringify(initialMatchState));
     res.status(201).json({
       message: "Match started successfully",
       match,
@@ -84,3 +122,9 @@ export const startMatch = async (req: Request, res: Response) => {
     }
   }
 };
+
+
+
+export const handelEvent=(req:Request,res:Response)=>{
+
+}
