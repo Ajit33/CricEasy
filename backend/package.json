@@ -2,11 +2,14 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
-    "build": "tsc",
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "start": "node dist/index.js"
-  },
+"scripts": {
+  "build": "tsc",
+  "start:redis": "docker ps -a --filter \"name=myredis\" --format \"{{.ID}}\" | findstr . >nul && docker start myredis || docker run --name myredis -d -p 6379:6379 redis",
+  "stop:redis": "docker stop myredis && docker rm myredis",
+  "dev": "npm run start:redis && ts-node-dev --respawn --transpile-only src/index.ts",
+  "start": "node dist/index.js"
+},
+
   "keywords": [],
   "author": "",
   "license": "ISC",
