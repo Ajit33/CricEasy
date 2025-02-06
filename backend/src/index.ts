@@ -4,9 +4,9 @@ import dotenv from "dotenv";
 import { checkDatabaseConnection, dbconfig } from "./config/dbconnection";
 import { prisma } from "./prisma/client";
 import rootRouter from "./routes/route"
-
+import cors from "cors"
 app.use(express.json());
-
+app.use(cors())
 app.use("/api/v1",rootRouter)
 dotenv.config();
 
