@@ -1,9 +1,9 @@
 import express from "express";
-import { handelEvent, startMatch } from "../controllers/matchController";
+import { handleEvent, startMatch } from "../controllers/matchController";
 const router =express.Router()
 
 router.post("/create",startMatch)
-router.post("/:matchId/event",handelEvent)
+router.post("/:matchId/event",handleEvent)
 
 
 export default router

@@ -54,37 +54,42 @@ export const createTournament = async (req: Request, res: Response): Promise<voi
 
 export const addTeams = async (req: Request, res: Response) => {
   try {
-    
     const tournamentId = Number(req.params.tournamentId);
-    console.log("this is the tournamnet Id",tournamentId)
-    console.log("params",req.params.tournamentId)
- 
+    console.log("Tournament ID:", tournamentId);
+
     const { name } = req.body;
 
-  
     if (!name) {
       throw new CustomError("Team name is required", 400);
     }
+
     if (isNaN(tournamentId)) {
       throw new CustomError("Invalid tournament ID", 400);
     }
 
-    // Find the tournament
+    // Check if the tournament exists
     const tournament = await prisma.tournament.findUnique({
-      where: {
-        id: tournamentId,
-      },
-      include: {
-        teams: true, 
-      },
+      where: { id: tournamentId },
+      include: { teams: true },
     });
 
-    // Check if the tournament exists
     if (!tournament) {
       throw new CustomError("Tournament not found", 404);
     }
 
-    // Check if the maximum team size has been reached
+ 
+    const isTeamExist = await prisma.team.findFirst({
+      where: {
+        name: { equals: name, mode: "insensitive" },
+        tournamentId: tournamentId, 
+      },
+    });
+
+    if (isTeamExist) {
+      throw new CustomError("Team with this name already exists in the tournament", 400);
+    }
+
+    // Check if maximum team size is reached
     if (tournament.teams.length >= tournament.teamSize) {
       throw new CustomError("Maximum team size reached for this tournament", 400);
     }
@@ -92,22 +97,20 @@ export const addTeams = async (req: Request, res: Response) => {
     // Add the team to the tournament
     const newTeam = await prisma.team.create({
       data: {
-        name: name,
+        name,
         tournament: {
           connect: { id: tournamentId },
         },
       },
     });
 
-    // Send success response
     res.status(201).json({
       message: "Team added successfully",
       team: newTeam,
     });
   } catch (error: any) {
-    console.error("Error adding team:", error);
+    console.error("Error adding team:", error.message || error);
 
-    // Handle errors using the CustomError class
     if (error instanceof CustomError) {
       res.status(error.statusCode).json({ error: error.message });
     } else {
@@ -115,4 +118,3 @@ export const addTeams = async (req: Request, res: Response) => {
     }
   }
 };
-
