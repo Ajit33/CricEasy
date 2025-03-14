@@ -5,6 +5,8 @@ import * as z from "zod";
 import { Loader2, Mail, User, Lock } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 
 
 const formSchema = z.object({
@@ -62,7 +64,7 @@ const Signup = () => {
               <FormField
                 control={form.control}
                 name="name"
-                render={({ field }) => (
+                render={({ field:any }) => (
                   <FormItem>
                     <FormLabel>Full Name</FormLabel>
                     <FormControl>
